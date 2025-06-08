@@ -31,7 +31,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -64,6 +67,7 @@ import com.example.auctionsapp.auction_form.presentation.AuctionFormAction
 import com.example.auctionsapp.auction_form.presentation.AuctionFormEvent
 import com.example.auctionsapp.auction_form.presentation.AuctionFormState
 import com.example.auctionsapp.auction_form.presentation.AuctionFormViewModel
+import com.example.auctionsapp.core.domain.AuctionCategory
 import com.example.auctionsapp.overview.presentation.OverviewAction
 import com.example.auctionsapp.overview.presentation.OverviewViewModel
 import kotlinx.datetime.Instant
@@ -145,6 +149,14 @@ fun AuctionFormScreen(
                 .padding(24.dp)
                 .verticalScroll(rememberScrollState())
         ) {
+            CategoryDropdown(
+                selected = state.auction.category,
+                onCategorySelected = { newCategory ->
+                    onAction(AuctionFormAction.UpdateAuctionField(state.auction.copy(category = newCategory)))
+                }
+            )
+
+
             AuctionOutlinedTextField(
                 value = state.auction.title,
                 onValueChange = { newTitle ->
@@ -347,9 +359,8 @@ fun AuctionEndDatePicker(
                     onClick = {
                         val selectedMillis = datePickerState.selectedDateMillis
                         if (selectedMillis != null) {
-                            // ZAWSZE używaj UTC!
                             val localDate = Instant.fromEpochMilliseconds(selectedMillis)
-                                .toLocalDateTime(TimeZone.UTC).date
+                                .toLocalDateTime(TimeZone.currentSystemDefault()).date
                             val localDateTime = LocalDateTime(
                                 year = localDate.year,
                                 monthNumber = localDate.monthNumber,
@@ -358,7 +369,7 @@ fun AuctionEndDatePicker(
                                 minute = 59,
                                 second = 59
                             )
-                            val selectedInstant = localDateTime.toInstant(TimeZone.UTC)
+                            val selectedInstant = localDateTime.toInstant(TimeZone.currentSystemDefault())
                             onDateSelected(selectedInstant)
                         }
                         showDatePicker = false
@@ -372,9 +383,8 @@ fun AuctionEndDatePicker(
             DatePicker(state = datePickerState)
         }
     }
-
-
 }
+
 
 @Composable
 fun GallerySection(
@@ -455,6 +465,52 @@ fun GallerySection(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Add image",
                     tint = Color.Gray
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CategoryDropdown(
+    selected: AuctionCategory,
+    onCategorySelected: (AuctionCategory) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val categories = AuctionCategory.values()
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        OutlinedTextField(
+            readOnly = true,
+            value = selected.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() },
+            onValueChange = {},
+            label = { Text("Category") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth()
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            categories.forEach { category ->
+                DropdownMenuItem(
+                    text = {
+                        Text(category.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() })
+                    },
+                    onClick = {
+                        onCategorySelected(category)
+                        expanded = false
+                    }
                 )
             }
         }

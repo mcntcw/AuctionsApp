@@ -3,6 +3,7 @@ package com.example.auctionsapp
 import android.app.Application
 import com.example.auctionsapp.auction_details.di.auctionDetailsModule
 import com.example.auctionsapp.auction_form.di.auctionFormModule
+import com.example.auctionsapp.auctions_list.di.auctionsListModule
 import com.example.auctionsapp.authentication.di.authenticationModule
 import com.example.auctionsapp.core.di.auctionModule
 import com.example.auctionsapp.core.di.storageModule
@@ -26,6 +27,7 @@ class App : Application() {
                 auctionDetailsModule,
                 auctionFormModule,
                 storageModule,
+                auctionsListModule,
             )
         }
     }

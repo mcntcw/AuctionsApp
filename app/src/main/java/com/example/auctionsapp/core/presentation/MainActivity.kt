@@ -1,25 +1,26 @@
     package com.example.auctionsapp.core.presentation
 
-    import AuctionDetailsScreenCore
     import AuctionFormScreenCore
-    import android.os.Bundle
-    import android.util.Log
-    import androidx.activity.ComponentActivity
-    import androidx.activity.compose.setContent
-    import androidx.activity.enableEdgeToEdge
-    import androidx.compose.runtime.Composable
-    import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-    import androidx.navigation.NavType
-    import androidx.navigation.compose.NavHost
-    import androidx.navigation.compose.composable
-    import androidx.navigation.compose.rememberNavController
-    import androidx.navigation.navArgument
+import android.os.Bundle
+import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.Composable
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.auctionsapp.auction_details.presentation.AuctionDetailsScreenCore
+    import com.example.auctionsapp.auctions_list.presentation.AuctionsListScreenCore
     import com.example.auctionsapp.authentication.presentation.AuthenticationScreenCore
-    import com.example.auctionsapp.authentication.presentation.AuthenticationViewModel
-    import com.example.auctionsapp.core.presentation.ui.theme.AuctionsAppTheme
-    import com.example.auctionsapp.core.presentation.util.Screen
-    import com.example.auctionsapp.overview.presentation.OverviewScreenCore
-    import org.koin.androidx.viewmodel.ext.android.viewModel
+import com.example.auctionsapp.authentication.presentation.AuthenticationViewModel
+import com.example.auctionsapp.core.presentation.ui.theme.AuctionsAppTheme
+import com.example.auctionsapp.core.presentation.util.Screen
+import com.example.auctionsapp.overview.presentation.OverviewScreenCore
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
     class MainActivity : ComponentActivity() {
@@ -109,20 +110,39 @@
                         }
                     },
                     onAuctionClick = { auctionId ->
-                        navController.navigate("AuctionDetailsScreen/$auctionId")
+                        navController.navigate("com.example.auctionsapp.auction_details.presentation.AuctionDetailsScreen/$auctionId")
                     },
                     onFloatingButtonClick = {
                         navController.navigate("AuctionFormScreen/new")
-                    }
+                    },
+                    onCategoryClick = { categoryName ->
+                        println(categoryName)
+                        navController.navigate("auctions_list?mode=category&category=${categoryName}")
+                    },
+                    onNavigateToUserAuctions = { sellerId ->
+                        navController.navigate("auctions_list?mode=user&category=&userId=${sellerId}&query=")
+                    },
+                    onNavigateToUserBids = { sellerId ->
+                        navController.navigate("auctions_list?mode=bids&category=&userId=${sellerId}&query=")
+                    },
+                    onNavigateAfterSearch = { query ->
+                        navController.navigate("auctions_list?mode=search&category=&userId=&query=${query}")
+                    },
                 )
             }
 
             composable(
-                route = "AuctionDetailsScreen/{auctionId}",
+                route = "com.example.auctionsapp.auction_details.presentation.AuctionDetailsScreen/{auctionId}",
                 arguments = listOf(navArgument("auctionId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val auctionId = backStackEntry.arguments?.getString("auctionId") ?: ""
-                AuctionDetailsScreenCore(auctionId = auctionId)
+                AuctionDetailsScreenCore(
+                    auctionId = auctionId,
+                    onBack = { navController.popBackStack() },
+                    onSellerClick = { sellerId ->
+                        navController.navigate("auctions_list?mode=user&category=&userId=${sellerId}&query=")
+                    }
+                )
             }
             composable(
                 route = "AuctionFormScreen/{auctionId}",
@@ -133,13 +153,40 @@
                     auctionId = auctionId,
                     onCancel = { navController.popBackStack() },
                     onNavigateAfterSuccess = { newAuctionId ->
-                        navController.navigate("AuctionDetailsScreen/$newAuctionId") {
+                        navController.navigate("com.example.auctionsapp.auction_details.presentation.AuctionDetailsScreen/$newAuctionId") {
                             popUpTo("AuctionFormScreen/$auctionId") { inclusive = true }
                         }
 
             }
                 )
             }
+
+            composable(
+                route = "auctions_list?mode={mode}&category={category}&userId={userId}&query={query}",
+                arguments = listOf(
+                    navArgument("mode") { type = NavType.StringType; defaultValue = "" },
+                    navArgument("category") { type = NavType.StringType; defaultValue = "" },
+                    navArgument("userId") { type = NavType.StringType; defaultValue = "" },
+                    navArgument("query") { type = NavType.StringType; defaultValue = "" },
+                )
+            ) { backStackEntry ->
+                val mode = backStackEntry.arguments?.getString("mode") ?: ""
+                val category = backStackEntry.arguments?.getString("category") ?: ""
+                val userId = backStackEntry.arguments?.getString("userId") ?: ""
+                val query = backStackEntry.arguments?.getString("query") ?: ""
+                AuctionsListScreenCore(
+                    mode = mode,
+                    category = category,
+                    userId = userId,
+                    query = query,
+                    onBack = { navController.popBackStack() },
+                    onAuctionClick = { auctionId ->
+                        navController.navigate("com.example.auctionsapp.auction_details.presentation.AuctionDetailsScreen/$auctionId")
+                    }
+                )
+            }
+
+
 
         }
     }

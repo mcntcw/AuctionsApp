@@ -27,21 +27,86 @@ val ClashDisplayFontFamily = FontFamily(
 val CustomTypography = Typography(
     displayLarge = TextStyle(
         fontFamily = ClashDisplayFontFamily,
-        fontWeight = FontWeight.Normal,
-        fontSize = 24.sp
+        fontWeight = FontWeight.Bold,
+        fontSize = 34.sp
+    ),
+    displayMedium = TextStyle(
+        fontFamily = ClashDisplayFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 28.sp
+    ),
+    displaySmall = TextStyle(
+        fontFamily = ClashDisplayFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 22.sp
+    ),
+    headlineLarge = TextStyle(
+        fontFamily = ClashDisplayFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = ClashDisplayFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 18.sp
+    ),
+    headlineSmall = TextStyle(
+        fontFamily = ClashDisplayFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp
+    ),
+    titleLarge = TextStyle(
+        fontFamily = ClashDisplayFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp
+    ),
+    titleMedium = TextStyle(
+        fontFamily = ClashDisplayFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp
+    ),
+    titleSmall = TextStyle(
+        fontFamily = ClashDisplayFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp
     ),
     bodyLarge = TextStyle(
         fontFamily = ClashDisplayFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp
     ),
+    bodyMedium = TextStyle(
+        fontFamily = ClashDisplayFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp
+    ),
+    bodySmall = TextStyle(
+        fontFamily = ClashDisplayFontFamily,
+        fontWeight = FontWeight.Light,
+        fontSize = 12.sp
+    ),
+    labelLarge = TextStyle(
+        fontFamily = ClashDisplayFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp
+    ),
+    labelMedium = TextStyle(
+        fontFamily = ClashDisplayFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp
+    ),
+    labelSmall = TextStyle(
+        fontFamily = ClashDisplayFontFamily,
+        fontWeight = FontWeight.Light,
+        fontSize = 10.sp
+    )
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFFE5E5E5),
+    primary = Color(0xFFFDFFFC),
     secondary = PurpleGrey80,
     tertiary = Pink80,
-    background = Color(0xFF494949),
+    background = Color(0xFF161925),
     surface = Color(0xFF2D2D2D),
     onPrimary = Color(0xFF2D2D2D),
     onSecondary = Color.White,

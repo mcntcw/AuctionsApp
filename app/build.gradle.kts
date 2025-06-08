@@ -78,6 +78,10 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-compose:3.0.4")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.4")
 
+    implementation("com.google.accompanist:accompanist-pager:0.34.0")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.34.0")
+
+
 
     implementation("io.insert-koin:koin-android:4.1.0-Beta1")
     implementation ("io.insert-koin:koin-androidx-compose:4.1.0-Beta1")

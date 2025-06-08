@@ -22,7 +22,33 @@ class AuctionRepositoryImpl(
         return supabaseAuctionDataSource.upsertAuction(auction)
     }
 
-    override suspend fun deleteAuction(auction: Auction): Auction {
-        TODO("Not yet implemented")
+    override suspend fun cancelAuction(auctionId: String){
+        return supabaseAuctionDataSource.cancelAuction(auctionId)
     }
+
+    override suspend fun placeBid(auctionId: String, bidderId: String, amount: Double) {
+        return supabaseAuctionDataSource.placeBid(auctionId, bidderId, amount)
+    }
+
+    override suspend fun buyNow(auctionId: String, buyerId: String) {
+        return supabaseAuctionDataSource.buyNow(auctionId, buyerId)
+    }
+
+    override suspend fun getAuctionsByCategoryPaged(category: String, limit: Int, offset: Int): List<Auction> {
+        return supabaseAuctionDataSource.getAuctionsByCategoryPaged(category, limit, offset)
+    }
+
+    override suspend fun getAllAuctionsFromUserPaged(userId: String, limit: Int, offset: Int): List<Auction> {
+        return supabaseAuctionDataSource.getAllAuctionsFromUserPaged(userId, limit, offset)
+    }
+
+    override suspend fun getAllAuctionsUserParticipated(userId: String, limit: Int, offset: Int): List<Auction> {
+        return supabaseAuctionDataSource.getAllAuctionsUserParticipated(userId, limit, offset)
+    }
+
+
+    override suspend fun getAllAuctionsFromSearchPaged(query: String, limit: Int, offset: Int): List<Auction> {
+        return supabaseAuctionDataSource.getAllAuctionsFromSearchPaged(query, limit, offset)
+    }
+
 }
