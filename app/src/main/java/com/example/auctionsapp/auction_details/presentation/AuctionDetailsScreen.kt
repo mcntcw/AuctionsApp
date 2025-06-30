@@ -30,9 +30,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,6 +45,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
@@ -62,6 +68,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -104,6 +111,12 @@ fun AuctionDetailsScreenCore(
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
                 is AuctionDetailsEvent.AuctionEndedByTime -> Toast.makeText(context, "Auction has ended!", Toast.LENGTH_SHORT).show()
+                AuctionDetailsEvent.CancelAuctionFailure -> {
+                    Toast.makeText(context, "Cancel failed", Toast.LENGTH_SHORT).show()
+                }
+                AuctionDetailsEvent.CancelAuctionSuccess -> {
+                    Toast.makeText(context, "The auction has been cancelled.", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -129,6 +142,7 @@ fun AuctionDetailsScreen(
 
     var galleryDialogOpen by remember { mutableStateOf(false) }
     var galleryStartIndex by remember { mutableIntStateOf(0) }
+    var showCancelDialog by remember { mutableStateOf(false) }
 
     fun openGallery(index: Int) {
         galleryStartIndex = index
@@ -145,26 +159,13 @@ fun AuctionDetailsScreen(
 
     val pagerState = rememberPagerState()
 
-
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "",
-                        style = MaterialTheme.typography.titleLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
+            AuctionDetailsTopBar(
+                onBack = onBack,
+                isOwner = state.auction.seller.id == state.currentUserId,
+                auctionStatus = state.auction.status,
+                onCancelAuction = { showCancelDialog = true }
             )
         },
 
@@ -251,7 +252,6 @@ fun AuctionDetailsScreen(
                     onClick = { onSellerClick(state.auction.seller.id!!) },
                 )
 
-
                 AuctionDetailRow(label = "Phone", value = state.auction.phoneNumber)
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -269,6 +269,7 @@ fun AuctionDetailsScreen(
                         if (state.auction.status == AuctionStatus.ACTIVE) {
                             AuctionBidsBox(
                                 bids = state.auction.bids,
+                                buyNowPrice = state.auction.buyNowPrice,
                                 endTime = state.auction.endTime,
                                 buyerName = state.auction.buyer?.name,
                                 onBuyNow = { onAction(AuctionDetailsAction.BuyNow) },
@@ -322,7 +323,137 @@ fun AuctionDetailsScreen(
             }
         }
 
+        // Dialog potwierdzenia anulowania
+        CancelAuctionDialog(
+            showDialog = showCancelDialog,
+            onConfirm = {
+                showCancelDialog = false
+                onAction(AuctionDetailsAction.CancelAuction)
+            },
+            onDismiss = {
+                showCancelDialog = false
+            }
+        )
+    }
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AuctionDetailsTopBar(
+    onBack: () -> Unit,
+    isOwner: Boolean,
+    auctionStatus: AuctionStatus,
+    onCancelAuction: () -> Unit
+) {
+    var showMenu by remember { mutableStateOf(false) }
+
+    TopAppBar(
+        title = {
+            Text(
+                text = "",
+                style = MaterialTheme.typography.titleLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            }
+        },
+        actions = {
+            // Pokaż menu tylko dla właściciela aktywnej aukcji
+            if (isOwner && auctionStatus == AuctionStatus.ACTIVE) {
+                IconButton(onClick = { showMenu = true }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Menu"
+                    )
+                }
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false }
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                "Cancel Auction",
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        },
+                        onClick = {
+                            showMenu = false
+                            onCancelAuction()
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    )
+                }
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background
+        )
+    )
+}
+
+@Composable
+fun CancelAuctionDialog(
+    showDialog: Boolean,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            title = {
+                Text(
+                    "Cancel Auction",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    "Are you sure you want to cancel this auction? This action cannot be undone and all current bids will be invalidated.",
+                    textAlign = TextAlign.Center
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = onConfirm,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text(
+                        "Yes, Cancel",
+                        color = MaterialTheme.colorScheme.onError,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(
+                        "Keep Auction",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+        )
     }
 }
 
@@ -456,16 +587,10 @@ fun AuctionDetailRowWithAvatar(
     }
 }
 
-
-
-
-
-
-
-
 @Composable
 fun AuctionBidsBox(
     bids: List<Bid>,
+    buyNowPrice: Double,
     endTime: Instant,
     buyerName: String?,
     onBuyNow: () -> Unit,
@@ -596,7 +721,7 @@ fun AuctionBidsBox(
                     .fillMaxWidth()
                     .height(48.dp)
             ) {
-                Text("Buy Now", fontWeight = FontWeight.Bold)
+                Text("Buy Now ($${buyNowPrice})", fontWeight = FontWeight.Bold)
             }
 
             Spacer(Modifier.height(12.dp))
@@ -771,21 +896,26 @@ fun SellerBidsBox(bids: List<Bid>) {
             if (bids.isEmpty()) {
                 Text("No bids yet", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
             } else {
+                Text(
+                    text = "All Bids",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(Modifier.height(8.dp))
                 bids.sortedByDescending { it.amount }.forEach { bid ->
                     Column(Modifier.padding(vertical = 6.dp)) {
-                        Text(
-                            text = "All Bids",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(Modifier.height(8.dp))
+
                         Text(
                             text = "${bid.bidder.name} – $${"%.2f".format(bid.amount)}",
                             style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+
                         Text(
-                            text = bid.placedAt.toString(),
+                            text = bid.placedAt
+                            !!.toLocalDateTime(TimeZone.currentSystemDefault())
+                                .let { "${it.dayOfMonth.toString().padStart(2, '0')}-${it.monthNumber.toString().padStart(2, '0')}-${it.year.toString().takeLast(2)} ${it.hour.toString().padStart(2, '0')}:${it.minute.toString().padStart(2, '0')}" },
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

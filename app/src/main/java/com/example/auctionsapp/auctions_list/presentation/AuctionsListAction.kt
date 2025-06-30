@@ -6,6 +6,7 @@ sealed interface AuctionsListAction {
     data object LoadAllAuctionsFromUser : AuctionsListAction
     data object LoadAllAuctionsUserParticipated : AuctionsListAction
     data object LoadAllAuctionsFromSearchQuery : AuctionsListAction
+    data object LoadLatestAuctions : AuctionsListAction
 
 
     data object LoadNextPage : AuctionsListAction

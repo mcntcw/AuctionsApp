@@ -8,5 +8,6 @@ data class OverviewState (
     val latestAuctions: List<Auction> = emptyList(),
     val searchQuery: String = "",
     val isLatestAuctionsLoading: Boolean = false,
+    val hasUnreadNotifications: Boolean = false
 )
 

@@ -1,11 +1,13 @@
 package com.example.auctionsapp.overview.presentation
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.auctionsapp.auction_details.domain.AuctionService
 import com.example.auctionsapp.auction_details.presentation.AuctionDetailsAction
 import com.example.auctionsapp.auction_details.presentation.AuctionDetailsEvent
 import com.example.auctionsapp.auction_details.presentation.AuctionDetailsState
@@ -24,6 +26,7 @@ class AuctionDetailsViewModel(
     private val authenticationRepository: AuthenticationRepository,
     private val userRepository: UserRepository,
     private val auctionRepository: AuctionRepository,
+    private val auctionService: AuctionService,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     var state by mutableStateOf(AuctionDetailsState())
@@ -34,6 +37,14 @@ class AuctionDetailsViewModel(
     private val auctionId: String = checkNotNull(savedStateHandle["auctionId"])
 
     private var auctionEndJob: Job? = null
+    override fun onCleared() {
+        super.onCleared()
+        auctionEndJob?.cancel()
+        println("🧹 ViewModel cleared - timer cancelled")
+    }
+    fun cancelTimers() {
+        auctionEndJob?.cancel()
+    }
 
     init {
         viewModelScope.launch {
@@ -53,6 +64,7 @@ class AuctionDetailsViewModel(
             is AuctionDetailsAction.UpdateBidValue -> updateBidValue { _ ->
                 action.newValue
             }
+            is AuctionDetailsAction.CancelAuction -> cancelAuction()
         }
 }
 
@@ -124,7 +136,8 @@ class AuctionDetailsViewModel(
 
         viewModelScope.launch {
             try {
-                auctionRepository.placeBid(
+                // ZMIANA: Używamy auctionService zamiast auctionRepository
+                auctionService.placeBid(
                     auctionId = auction.id ?: "",
                     bidderId = currentUserId,
                     amount = bidAmount
@@ -141,6 +154,7 @@ class AuctionDetailsViewModel(
         }
     }
 
+
     private fun buyNow(
     ) {
         val auction = state.auction
@@ -156,7 +170,7 @@ class AuctionDetailsViewModel(
         }
         viewModelScope.launch {
             try {
-                auctionRepository.buyNow(
+                auctionService.buyNow(
                     auctionId = auction.id ?: "",
                     buyerId = currentUserId
                 )
@@ -170,6 +184,21 @@ class AuctionDetailsViewModel(
         }
     }
 
+    private fun cancelAuction(
+    ) {
+        val auction = state.auction
+
+        viewModelScope.launch {
+            try {
+                auctionRepository.cancelAuction(auction.id ?: "")
+                getAuctionInfo(auction.id ?: "")
+                _event.emit(AuctionDetailsEvent.CancelAuctionSuccess)
+            } catch (e: Exception) {
+                _event.emit(AuctionDetailsEvent.CancelAuctionFailure)
+            }
+        }
+    }
+
 
 
     private fun updateBidValue(update: (Double) -> Double) {
@@ -179,6 +208,7 @@ class AuctionDetailsViewModel(
         println(state.bidValue)
     }
 
+    @SuppressLint("DefaultLocale")
     private fun validateBid(
         bidAmount: Double,
         auction: Auction,
@@ -195,9 +225,14 @@ class AuctionDetailsViewModel(
         }
         val highestBid = auction.bids.maxByOrNull { it.amount }?.amount ?: 0.0
         if (bidAmount <= highestBid) {
-            return "Your bid must be higher than the current highest bid (${highestBid})"
+            return "Your bid must be higher than the current highest bid ($${String.format("%.2f", highestBid)})"
+        }
+        // NOWA WALIDACJA: Ostrzeżenie gdy bid >= Buy Now price
+        if (bidAmount >= auction.buyNowPrice) {
+            return "Your bid ($${String.format("%.2f", bidAmount)}) is equal to or higher than Buy Now price ($${String.format("%.2f", auction.buyNowPrice)}). Consider using Buy Now instead."
         }
         return null
     }
+
 
 }

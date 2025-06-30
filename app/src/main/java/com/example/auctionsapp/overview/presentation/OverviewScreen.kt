@@ -92,7 +92,9 @@ fun OverviewScreenCore(
     onCategoryClick: (String) -> Unit,
     onNavigateToUserAuctions: (String) -> Unit,
     onNavigateToUserBids: (String) -> Unit,
-    onNavigateAfterSearch: (String) -> Unit
+    onNavigateToNotifications: () -> Unit,
+    onNavigateAfterSearch: (String) -> Unit,
+    onLatestClick: () -> Unit
 ) {
     var backPressedTime by remember { mutableStateOf(0L) }
     val context = LocalContext.current
@@ -123,12 +125,15 @@ fun OverviewScreenCore(
                 OverviewEvent.SignOutSuccess -> {
                     onBackAfterSignOut()
                 }
+                OverviewEvent.CheckUnreadNotificationsFailure -> {}
+                OverviewEvent.CheckUnreadNotificationsSuccess -> {}
             }
         }
     }
 
     LaunchedEffect(true) {
         viewModel.onAction(OverviewAction.GetLatestAuctions)
+        viewModel.onAction(OverviewAction.CheckUnreadNotifications)
     }
 
 
@@ -140,7 +145,9 @@ fun OverviewScreenCore(
         onCategoryClick =  onCategoryClick,
         onNavigateToUserAuctions = onNavigateToUserAuctions,
         onNavigateToUserBids = onNavigateToUserBids,
-        onNavigateAfterSearch = onNavigateAfterSearch
+        onNavigateAfterSearch = onNavigateAfterSearch,
+        onLatestClick = onLatestClick,
+        onNavigateToNotifications = onNavigateToNotifications,
     )
 }
 
@@ -156,7 +163,9 @@ fun OverviewScreen(
     onCategoryClick: (String) -> Unit,
     onNavigateToUserAuctions: (String) -> Unit,
     onNavigateToUserBids: (String) -> Unit,
-    onNavigateAfterSearch: (String) -> Unit
+    onNavigateToNotifications: () -> Unit,
+    onNavigateAfterSearch: (String) -> Unit,
+    onLatestClick: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
         state = rememberTopAppBarState()
@@ -207,6 +216,36 @@ fun OverviewScreen(
 
                         )
 
+                    Row(
+                        modifier = Modifier
+                            .clickable {
+                                onNavigateToNotifications()
+                            }
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Notifications",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
+                        )
+
+                        // Niebieska kropka dla nieprzeczytanych powiadomień
+                        if (state.hasUnreadNotifications) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primary)
+                            )
+                        }
+                    }
+
+
                     Spacer(Modifier.weight(1f))
 
                     Button(onClick = { onAction(OverviewAction.SignOut) }) {
@@ -234,21 +273,35 @@ fun OverviewScreen(
                                 contentAlignment = Alignment.Center
 
                             ) {
-                                AsyncImage(
-                                    model = url,
-                                    contentDescription = "Profile picture of ${state.user.name}",
-                                    modifier = Modifier
-                                        .size(48.dp)
-                                        .clip(CircleShape)
-                                        .border(shape = CircleShape, width = 4.dp, color = MaterialTheme.colorScheme.primary)
-                                        .background(MaterialTheme.colorScheme.primary),
-                                    onError = {
-                                        Log.e("AsyncImage", "Error loading image: ${it.result.throwable}")
-                                    },
-                                    onSuccess = {
-                                        Log.d("AsyncImage", "Image loaded successfully")
+                                Box {
+                                    AsyncImage(
+                                        model = url,
+                                        contentDescription = "Profile picture of ${state.user.name}",
+                                        modifier = Modifier
+                                            .size(48.dp)
+                                            .clip(CircleShape)
+                                            .border(shape = CircleShape, width = 4.dp, color = MaterialTheme.colorScheme.primary)
+                                            .background(MaterialTheme.colorScheme.primary),
+                                        onError = {
+                                            Log.e("AsyncImage", "Error loading image: ${it.result.throwable}")
+                                        },
+                                        onSuccess = {
+                                            Log.d("AsyncImage", "Image loaded successfully")
+                                        }
+                                    )
+
+                                    // Kropka dla nieprzeczytanych powiadomień
+                                    if (state.hasUnreadNotifications) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(12.dp)
+                                                .clip(CircleShape)
+                                                .background(MaterialTheme.colorScheme.primary)
+                                                .align(Alignment.TopEnd)
+                                        )
                                     }
-                                )
+                                }
+
                             }
                         }
                     },
@@ -319,7 +372,7 @@ fun OverviewScreen(
                             modifier = Modifier.fillMaxWidth(),
                             state = state,
                             onAuctionClick = onAuctionClick,
-                            onLatestClick = {}
+                            onLatestClick = onLatestClick,
                         )
                     }
                 }
@@ -521,8 +574,9 @@ private fun OverviewScreenPreview() {
             onCategoryClick = {},
             onNavigateToUserAuctions = {},
             onNavigateAfterSearch = {},
-            onNavigateToUserBids = {}
-
+            onNavigateToUserBids = {},
+            onLatestClick = {},
+            onNavigateToNotifications = {},
         )
     }
 }

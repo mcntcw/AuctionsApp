@@ -7,32 +7,31 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class AuctionStatus {
-    @SerialName("active") ACTIVE,
-    @SerialName("sold") SOLD,
-    @SerialName("ended") ENDED,
-    @SerialName("cancelled") CANCELLED;
+    ACTIVE,
+    SOLD,
+    ENDED,
+    CANCELLED;
 
     companion object {
         fun fromString(value: String?): AuctionStatus =
             entries.find { it.name.equals(value, ignoreCase = true) } ?: ACTIVE
     }
 }
-
 @Serializable
 data class Auction(
     val id: String?,
-    @SerialName("status") val status: AuctionStatus,
-    @SerialName("category") val category: AuctionCategory,
+    val status: AuctionStatus,
+    val category: AuctionCategory,
     val title: String,
     val description: String?,
-    @SerialName("gallery_urls") val galleryUrls: List<String>,
+    val galleryUrls: List<String>,
     val seller: User,
-    @SerialName("phone_number") val phoneNumber: String,
+    val phoneNumber: String,
     val bids: List<Bid>,
-    @SerialName("buy_now_price") val buyNowPrice: Double,
+    val buyNowPrice: Double,
     val buyer: User?,
-    @SerialName("created_at") val createdAt: Instant? = null,
-    @SerialName("end_time") val endTime: Instant
+    val createdAt: Instant? = null,
+    val endTime: Instant
 ) {
     companion object {
         fun empty(): Auction {

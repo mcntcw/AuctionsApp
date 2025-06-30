@@ -10,8 +10,8 @@ class AuctionRepositoryImpl(
         return supabaseAuctionDataSource.getAllAuctions()
     }
 
-    override suspend fun getLatestAuctions(): List<Auction> {
-        return supabaseAuctionDataSource.getLatestAuctions()
+    override suspend fun getLatestAuctions(limit: Long): List<Auction> {
+        return supabaseAuctionDataSource.getLatestAuctions(limit)
     }
 
     override suspend fun getAuctionById(id: String): Auction? {

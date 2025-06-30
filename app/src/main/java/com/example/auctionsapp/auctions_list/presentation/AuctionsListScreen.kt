@@ -96,6 +96,7 @@ fun AuctionsListScreen(
         "user" -> "${state.userDisplayName ?: "User"} Auctions"
         "search" -> "Search: $query"
         "bids" -> "My Bids"
+        "latest" -> "Latest"
         else -> "All Auctions"
     }
 

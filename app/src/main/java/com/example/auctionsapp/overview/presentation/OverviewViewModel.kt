@@ -1,5 +1,6 @@
 package com.example.auctionsapp.overview.presentation
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.auctionsapp.authentication.domain.AuthenticationRepository
 import com.example.auctionsapp.core.domain.AuctionRepository
 import com.example.auctionsapp.core.domain.UserRepository
+import com.example.auctionsapp.notifications.domain.NotificationRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -16,6 +18,7 @@ class OverviewViewModel(
     private val authenticationRepository: AuthenticationRepository,
     private val userRepository: UserRepository,
     private val auctionRepository: AuctionRepository,
+    private val notificationRepository: NotificationRepository
 ) : ViewModel() {
     var state by mutableStateOf(OverviewState())
 
@@ -25,6 +28,7 @@ class OverviewViewModel(
     init {
         onAction(OverviewAction.GetUserInfo)
         onAction(OverviewAction.GetLatestAuctions)
+        onAction(OverviewAction.CheckUnreadNotifications)
     }
 
     fun onAction(action: OverviewAction) {
@@ -65,13 +69,27 @@ class OverviewViewModel(
                     _event.emit(event)
                 }
             }
+
+            OverviewAction.CheckUnreadNotifications -> {
+                viewModelScope.launch {
+                    val success = checkUnreadNotifications()
+                    val event = if(success) {
+                        OverviewEvent.CheckUnreadNotificationsSuccess
+                    }
+                    else {
+                        OverviewEvent.CheckUnreadNotificationsFailure
+                    }
+                    _event.emit(event)
+                }
+            }
         }
     }
 
+    @SuppressLint("SuspiciousIndentation")
     private suspend fun getLatestAuction(): Boolean {
         state = state.copy(isLatestAuctionsLoading = true)
        return try {
-            val latestAuctions = auctionRepository.getLatestAuctions()
+            val latestAuctions = auctionRepository.getLatestAuctions(20)
             state = state.copy(latestAuctions = latestAuctions)
             state = state.copy(isLatestAuctionsLoading = false)
              true
@@ -108,8 +126,28 @@ class OverviewViewModel(
         } catch (_: Exception) {
             false
         }
-
     }
+
+    private suspend fun checkUnreadNotifications(): Boolean {
+        return try {
+            val currentUser = authenticationRepository.getCurrentUser()
+            if (currentUser != null) {
+                val allNotifications = notificationRepository.getUserNotificationsPaged(currentUser.id!!)
+                val unreadCount = allNotifications.count { !it.isRead }
+                state = state.copy(hasUnreadNotifications = unreadCount > 0)
+                true
+            } else {
+                state = state.copy(hasUnreadNotifications = false)
+                false
+            }
+        } catch (e: Exception) {
+            println("Błąd sprawdzania nieprzeczytanych powiadomień: ${e.message}")
+            state = state.copy(hasUnreadNotifications = false)
+            false
+        }
+    }
+
+
 
 
 }

@@ -13,4 +13,7 @@ sealed interface OverviewEvent {
 
     data object SignOutSuccess: OverviewEvent
     data object SignOutFailure: OverviewEvent
+
+    data object CheckUnreadNotificationsSuccess: OverviewEvent
+    data object CheckUnreadNotificationsFailure: OverviewEvent
 }

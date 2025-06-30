@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -19,6 +21,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val properties = Properties()
+        val localPropertiesFile = project.rootProject.file("local.properties")
+
+        if (localPropertiesFile.exists()) {
+            properties.load(localPropertiesFile.inputStream())
+        }
+
+        buildConfigField("String", "SUPABASE_URL", "\"${properties.getProperty("supabase.url") ?: "PUT_YOUR_SUPABASE_URL_HERE"}\"")
+        buildConfigField("String", "SUPABASE_KEY", "\"${properties.getProperty("supabase.key") ?: "PUT_YOUR_SUPABASE_KEY_HERE"}\"")
     }
 
     buildTypes {
@@ -38,6 +50,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
@@ -86,6 +99,32 @@ dependencies {
     implementation("io.insert-koin:koin-android:4.1.0-Beta1")
     implementation ("io.insert-koin:koin-androidx-compose:4.1.0-Beta1")
 
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("app.cash.turbine:turbine:1.0.0")
+    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.10")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+    testImplementation("org.slf4j:slf4j-simple:2.0.9")
+
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.7.6")
 
 
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+
+
+
+    jvmArgs(
+        "-Xmx8g",
+        "-Xms2g",
+        "-XX:MaxMetaspaceSize=1g",
+        "-XX:+EnableDynamicAgentLoading"
+    )
+
+    // Ograniczenie równoległych procesów
+    maxParallelForks = 1
 }

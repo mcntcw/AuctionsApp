@@ -61,6 +61,9 @@ class AuctionsListViewModel (
                 state = state.copy(userId = userId)
                 onAction(AuctionsListAction.LoadAllAuctionsUserParticipated)
             }
+            "latest" -> {
+                onAction(AuctionsListAction.LoadLatestAuctions)
+            }
         }
     }
 
@@ -71,6 +74,7 @@ class AuctionsListViewModel (
             is AuctionsListAction.LoadAllAuctionsFromUser -> loadAuctionsByUser()
             is AuctionsListAction.LoadAllAuctionsFromSearchQuery -> loadAllAuctionsBySearchQuery()
             is AuctionsListAction.LoadAllAuctionsUserParticipated -> loadAllAuctionsUserParticipated()
+            is AuctionsListAction.LoadLatestAuctions -> loadLatestAuctions()
         }
     }
 
@@ -116,6 +120,18 @@ class AuctionsListViewModel (
             try {
                 state = state.copy(isLoading = true)
                 val auctions = auctionRepository.getAllAuctionsFromSearchPaged(state.query!!, 20, 0)
+                state = state.copy(auctions = auctions, isLoading = false, page = 1, hasMore = auctions.size == 20)
+            } catch (e: Exception) {
+                state = state.copy(isLoading = false)
+            }
+        }
+    }
+
+    private fun loadLatestAuctions() {
+        viewModelScope.launch {
+            try {
+                state = state.copy(isLoading = true)
+                val auctions = auctionRepository.getLatestAuctions(1000)
                 state = state.copy(auctions = auctions, isLoading = false, page = 1, hasMore = auctions.size == 20)
             } catch (e: Exception) {
                 state = state.copy(isLoading = false)

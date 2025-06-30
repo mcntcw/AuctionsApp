@@ -59,13 +59,13 @@ class SupabaseAuctionDataSource(
         }
     }
 
-    suspend fun getLatestAuctions(): List<Auction> {
+    suspend fun getLatestAuctions(limit: Long): List<Auction> {
         return try {
             val result = supabase.from("auctions")
                 .select {
                     filter { eq("status", "active") }
                     order("created_at", order = Order.DESCENDING)
-                    limit(count = 20)
+                    limit(limit)
                 }
 
             val auctionsWithIds = result.decodeList<AuctionRaw>()

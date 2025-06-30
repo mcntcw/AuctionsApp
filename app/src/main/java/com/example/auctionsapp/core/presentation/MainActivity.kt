@@ -19,7 +19,8 @@ import com.example.auctionsapp.auction_details.presentation.AuctionDetailsScreen
 import com.example.auctionsapp.authentication.presentation.AuthenticationViewModel
 import com.example.auctionsapp.core.presentation.ui.theme.AuctionsAppTheme
 import com.example.auctionsapp.core.presentation.util.Screen
-import com.example.auctionsapp.overview.presentation.OverviewScreenCore
+    import com.example.auctionsapp.notifications.presentation.NotificationsScreenCore
+    import com.example.auctionsapp.overview.presentation.OverviewScreenCore
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -125,8 +126,14 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
                     onNavigateToUserBids = { sellerId ->
                         navController.navigate("auctions_list?mode=bids&category=&userId=${sellerId}&query=")
                     },
+                    onNavigateToNotifications = {
+                        navController.navigate("notifications_screen")
+                    },
                     onNavigateAfterSearch = { query ->
                         navController.navigate("auctions_list?mode=search&category=&userId=&query=${query}")
+                    },
+                    onLatestClick = {
+                        navController.navigate("auctions_list?mode=latest&category=&userId=&query=")
                     },
                 )
             }
@@ -185,6 +192,18 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
                     }
                 )
             }
+
+            composable("notifications_screen") {
+                NotificationsScreenCore(
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onAuctionClick = { auctionId ->
+                        navController.navigate("com.example.auctionsapp.auction_details.presentation.AuctionDetailsScreen/$auctionId")
+                    }
+                )
+            }
+
 
 
 

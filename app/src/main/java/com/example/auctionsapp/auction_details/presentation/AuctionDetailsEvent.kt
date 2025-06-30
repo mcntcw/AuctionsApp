@@ -13,4 +13,7 @@ sealed interface AuctionDetailsEvent {
     data object BuyNowFailure: AuctionDetailsEvent
 
     data object AuctionEndedByTime : AuctionDetailsEvent
+
+    data object CancelAuctionSuccess: AuctionDetailsEvent
+    data object CancelAuctionFailure: AuctionDetailsEvent
 }
