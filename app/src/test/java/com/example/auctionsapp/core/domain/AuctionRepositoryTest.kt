@@ -55,7 +55,7 @@ class AuctionRepositoryTest {
             )
         )
 
-        // Gotowe obiekty Auction (nie AuctionRaw!)
+        
         private val testAuction = Auction(
             id = "auction-123",
             status = AuctionStatus.ACTIVE,
@@ -72,7 +72,7 @@ class AuctionRepositoryTest {
             endTime = Instant.parse("2025-07-01T12:00:00Z")
         )
 
-        // Warianty dla różnych scenariuszy
+        
         private val testAuctionWithoutBuyer = testAuction.copy(buyer = null)
         private val testAuctionEnded = testAuction.copy(status = AuctionStatus.ENDED)
         private val testAuctionsList = listOf(testAuction, testAuctionWithoutBuyer)
@@ -80,14 +80,14 @@ class AuctionRepositoryTest {
 
     @Test
     fun getAuctionById_withValidId_returnsAuction() = runTest {
-        // Given
+        
         val auctionId = "auction-123"
         coEvery { dataSource.getAuctionById(auctionId) } returns testAuction
 
-        // When
+        
         val result = repository.getAuctionById(auctionId)
 
-        // Then
+        
         assertNotNull(result)
         assertEquals(testAuction.id, result?.id)
         assertEquals(testAuction.title, result?.title)
@@ -100,25 +100,25 @@ class AuctionRepositoryTest {
 
     @Test
     fun getAuctionById_withInvalidId_returnsNull() = runTest {
-        // Given
+        
         val invalidId = "invalid-id"
         coEvery { dataSource.getAuctionById(invalidId) } returns null
 
-        // When
+        
         val result = repository.getAuctionById(invalidId)
 
-        // Then
+        
         assertNull(result)
         coVerify { dataSource.getAuctionById(invalidId) }
     }
 
     @Test
     fun getAuctionById_withException_throwsException() = runTest {
-        // Given
+        
         val auctionId = "auction-123"
         coEvery { dataSource.getAuctionById(auctionId) } throws Exception("Network error")
 
-        // When & Then
+        
         assertThrows<Exception> {
             repository.getAuctionById(auctionId)
         }
@@ -127,13 +127,13 @@ class AuctionRepositoryTest {
 
     @Test
     fun getAllAuctions_withValidData_returnsAuctionList() = runTest {
-        // Given
+        
         coEvery { dataSource.getAllAuctions() } returns testAuctionsList
 
-        // When
+        
         val result = repository.getAllAuctions()
 
-        // Then
+        
         assertEquals(2, result.size)
         assertEquals(testAuctionsList, result)
         coVerify { dataSource.getAllAuctions() }
@@ -141,28 +141,28 @@ class AuctionRepositoryTest {
 
     @Test
     fun getAllAuctions_withEmptyResult_returnsEmptyList() = runTest {
-        // Given
+        
         coEvery { dataSource.getAllAuctions() } returns emptyList()
 
-        // When
+        
         val result = repository.getAllAuctions()
 
-        // Then
+        
         assertTrue(result.isEmpty())
         coVerify { dataSource.getAllAuctions() }
     }
 
     @Test
     fun getLatestAuctions_withValidLimit_returnsLimitedResults() = runTest {
-        // Given
+        
         val limit = 5L
         val limitedList = listOf(testAuction)
         coEvery { dataSource.getLatestAuctions(limit) } returns limitedList
 
-        // When
+        
         val result = repository.getLatestAuctions(limit)
 
-        // Then
+        
         assertEquals(1, result.size)
         assertEquals(limitedList, result)
         coVerify { dataSource.getLatestAuctions(limit) }
@@ -170,7 +170,7 @@ class AuctionRepositoryTest {
 
     @Test
     fun getAuctionsByCategoryPaged_withValidParams_returnsPagedResults() = runTest {
-        // Given
+        
         val category = "ELECTRONICS"
         val limit = 10
         val offset = 0
@@ -178,10 +178,10 @@ class AuctionRepositoryTest {
 
         coEvery { dataSource.getAuctionsByCategoryPaged(category, limit, offset) } returns categoryAuctions
 
-        // When
+        
         val result = repository.getAuctionsByCategoryPaged(category, limit, offset)
 
-        // Then
+        
         assertEquals(1, result.size)
         assertEquals(categoryAuctions, result)
         coVerify { dataSource.getAuctionsByCategoryPaged(category, limit, offset) }
@@ -189,76 +189,76 @@ class AuctionRepositoryTest {
 
     @Test
     fun upsertAuction_withValidAuction_returnsUpdatedAuction() = runTest {
-        // Given
+        
         val auctionToUpdate = testAuction.copy(title = "Updated Title")
         coEvery { dataSource.upsertAuction(auctionToUpdate) } returns auctionToUpdate
 
-        // When
+        
         val result = repository.upsertAuction(auctionToUpdate)
 
-        // Then
+        
         assertEquals(auctionToUpdate, result)
         coVerify { dataSource.upsertAuction(auctionToUpdate) }
     }
 
     @Test
     fun upsertAuction_withException_returnsNull() = runTest {
-        // Given
+        
         coEvery { dataSource.upsertAuction(any()) } returns null
 
-        // When
+        
         val result = repository.upsertAuction(testAuction)
 
-        // Then
+        
         assertNull(result)
         coVerify { dataSource.upsertAuction(testAuction) }
     }
 
     @Test
     fun placeBid_withValidParams_callsDataSource() = runTest {
-        // Given
+        
         val auctionId = "auction-123"
         val bidderId = "bidder-456"
         val amount = 200.0
         coEvery { dataSource.placeBid(auctionId, bidderId, amount) } returns Unit
 
-        // When
+        
         repository.placeBid(auctionId, bidderId, amount)
 
-        // Then
+        
         coVerify { dataSource.placeBid(auctionId, bidderId, amount) }
     }
 
     @Test
     fun buyNow_withValidParams_callsDataSource() = runTest {
-        // Given
+        
         val auctionId = "auction-123"
         val buyerId = "buyer-456"
         coEvery { dataSource.buyNow(auctionId, buyerId) } returns Unit
 
-        // When
+        
         repository.buyNow(auctionId, buyerId)
 
-        // Then
+        
         coVerify { dataSource.buyNow(auctionId, buyerId) }
     }
 
     @Test
     fun cancelAuction_withValidId_callsDataSource() = runTest {
-        // Given
+        
         val auctionId = "auction-123"
         coEvery { dataSource.cancelAuction(auctionId) } returns Unit
 
-        // When
+        
         repository.cancelAuction(auctionId)
 
-        // Then
+        
         coVerify { dataSource.cancelAuction(auctionId) }
     }
 
     @Test
     fun getAllAuctionsFromUserPaged_withValidParams_returnsUserAuctions() = runTest {
-        // Given
+        
         val userId = "user-123"
         val limit = 10
         val offset = 0
@@ -266,17 +266,17 @@ class AuctionRepositoryTest {
 
         coEvery { dataSource.getAllAuctionsFromUserPaged(userId, limit, offset) } returns userAuctions
 
-        // When
+        
         val result = repository.getAllAuctionsFromUserPaged(userId, limit, offset)
 
-        // Then
+        
         assertEquals(userAuctions, result)
         coVerify { dataSource.getAllAuctionsFromUserPaged(userId, limit, offset) }
     }
 
     @Test
     fun getAllAuctionsUserParticipated_withValidParams_returnsParticipatedAuctions() = runTest {
-        // Given
+        
         val userId = "user-123"
         val limit = 10
         val offset = 0
@@ -284,17 +284,17 @@ class AuctionRepositoryTest {
 
         coEvery { dataSource.getAllAuctionsUserParticipated(userId, limit, offset) } returns participatedAuctions
 
-        // When
+        
         val result = repository.getAllAuctionsUserParticipated(userId, limit, offset)
 
-        // Then
+        
         assertEquals(participatedAuctions, result)
         coVerify { dataSource.getAllAuctionsUserParticipated(userId, limit, offset) }
     }
 
     @Test
     fun getAllAuctionsFromSearchPaged_withValidQuery_returnsSearchResults() = runTest {
-        // Given
+        
         val query = "electronics"
         val limit = 10
         val offset = 0
@@ -302,10 +302,10 @@ class AuctionRepositoryTest {
 
         coEvery { dataSource.getAllAuctionsFromSearchPaged(query, limit, offset) } returns searchResults
 
-        // When
+        
         val result = repository.getAllAuctionsFromSearchPaged(query, limit, offset)
 
-        // Then
+        
         assertEquals(searchResults, result)
         coVerify { dataSource.getAllAuctionsFromSearchPaged(query, limit, offset) }
     }

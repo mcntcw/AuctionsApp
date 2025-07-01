@@ -15,26 +15,26 @@ class AuctionServiceImpl(
 ) : AuctionService {
 
     override suspend fun placeBid(auctionId: String, bidderId: String, amount: Double) {
-        // 1. Pobierz aktualną aukcję
+        
         val auction = auctionRepository.getAuctionById(auctionId)
             ?: throw Exception("Auction not found")
 
-        // 2. Znajdź poprzedniego najwyższego licytanta
+        
         val previousHighestBidder = auction.bids.maxByOrNull { it.amount }?.bidder?.id
 
-        // 3. Pobierz dane nowego licytanta
+        
         val newBidder = userRepository.getUserById(bidderId)
             ?: throw Exception("Bidder not found")
 
-        // 4. Złóż licytację
+        
         auctionRepository.placeBid(auctionId, bidderId, amount)
 
-        // 5. Stwórz powiadomienie dla poprzedniego licytanta
+        
         if (previousHighestBidder != null && previousHighestBidder != bidderId) {
             val previousBidder = userRepository.getUserById(previousHighestBidder)
             if (previousBidder != null) {
                 val outbidNotification = Notification(
-                    id = null, // Zostanie wygenerowane przez bazę danych
+                    id = null, 
                     receiver = previousBidder,
                     auction = auction,
                     type = NotificationType.BID_OUTBID,
@@ -46,10 +46,10 @@ class AuctionServiceImpl(
             }
         }
 
-        // 6. Powiadom właściciela aukcji o nowej licytacji
+        
         if (auction.seller.id != bidderId) {
             val newBidNotification = Notification(
-                id = null, // Zostanie wygenerowane przez bazę danych
+                id = null, 
                 receiver = auction.seller,
                 auction = auction,
                 type = NotificationType.MY_AUCTION_NEW_BID,
@@ -62,18 +62,18 @@ class AuctionServiceImpl(
     }
 
     override suspend fun buyNow(auctionId: String, buyerId: String) {
-        // 1. Pobierz aktualną aukcję
+        
         val auction = auctionRepository.getAuctionById(auctionId)
             ?: throw Exception("Auction not found")
 
-        // 2. Pobierz dane kupującego
+        
         val buyer = userRepository.getUserById(buyerId)
             ?: throw Exception("Buyer not found")
 
-        // 3. Wykonaj zakup natychmiastowy
+        
         auctionRepository.buyNow(auctionId, buyerId)
 
-        // 4. Powiadom sprzedawcę o sprzedaży
+        
         val sellerNotification = Notification(
             id = null,
             receiver = auction.seller,
@@ -85,9 +85,9 @@ class AuctionServiceImpl(
         )
         notificationRepository.upsertNotification(sellerNotification)
 
-        // 5. Powiadom wszystkich licytantów, że aukcja została sprzedana
+        
         auction.bids.map { it.bidder.id }.distinct().forEach { bidderId ->
-            if (bidderId != buyerId) { // Nie powiadamiaj kupującego
+            if (bidderId != buyerId) { 
                 val bidder = bidderId?.let { userRepository.getUserById(it) }
                 if (bidder != null) {
                     val bidderNotification = Notification(

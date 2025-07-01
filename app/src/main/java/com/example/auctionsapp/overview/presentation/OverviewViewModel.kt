@@ -109,7 +109,7 @@ class OverviewViewModel(
             val user = userRepository.getUserById(id)
             user?.let {
                 val cleanedName = it.name.trim('"')
-//                val cleanedUrl = it.profilePictureUrl?.trim('"')
+
 
                 state = state.copy(user = it.copy(name = cleanedName, profilePictureUrl = user.profilePictureUrl))
             }

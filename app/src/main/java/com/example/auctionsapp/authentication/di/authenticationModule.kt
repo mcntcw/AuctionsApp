@@ -22,8 +22,8 @@ val authenticationModule = module {
 
     single {
         createSupabaseClient(
-            supabaseUrl = "https://vtncymngmnzsamnbboiy.supabase.co",
-            supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0bmN5bW5nbW56c2FtbmJib2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1ODg2NzcsImV4cCI6MjA0NzE2NDY3N30.EYir6FewEQ3--rCa9wSfn54Rs8F5UlyxSehO8YsMmPc"
+            supabaseUrl = "SUPABASE_URL",
+            supabaseKey = "SUPABASE_KEY"
         ) {
             install(Auth)
             install(Postgrest)

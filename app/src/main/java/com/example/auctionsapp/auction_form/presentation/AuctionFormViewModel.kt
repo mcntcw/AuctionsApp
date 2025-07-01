@@ -114,9 +114,9 @@ class AuctionFormViewModel (
         if (!auction.phoneNumber.matches(Regex("^\\d{9}$"))) {
             return "Phone number must have exactly 9 digits"
         }
-        // Walidacja daty: nie może być pusta, nie może być DistantFuture, musi być w przyszłości, ale nie za daleko
+        
         val now = kotlinx.datetime.Clock.System.now()
-        val maxAllowedYear = 2100 // przykładowy limit, możesz zmienić
+        val maxAllowedYear = 2100 
         if (auction.endTime == null ||
             auction.endTime == kotlinx.datetime.Instant.DISTANT_FUTURE ||
             auction.endTime <= now
@@ -127,7 +127,7 @@ class AuctionFormViewModel (
         if (endYear > maxAllowedYear) {
             return "End date is too far in the future"
         }
-        return null // OK!
+        return null 
     }
 
 

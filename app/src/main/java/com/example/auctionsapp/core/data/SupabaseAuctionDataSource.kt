@@ -37,7 +37,7 @@ class SupabaseAuctionDataSource(
                     try {
                         val sellerUser =
                             userRepository.getUserById(auctionRaw.sellerId) ?: User.empty()
-//                        val bids = emptyList<Bid>()
+
                         println("USER KTORY STWORZYL AUKCJE: $sellerUser")
                         auctionRaw.toAuction(sellerUser)
                     } catch (e: Exception) {
@@ -162,7 +162,7 @@ class SupabaseAuctionDataSource(
             println("finalGalleryUrls po przetworzeniu: $finalGalleryUrls")
 
             val auctionRaw = AuctionRaw(
-//                id = null, GENERATED IN SUPABASE
+
                 status = auction.status.name.lowercase(),
                 category = auction.category.name.lowercase(),
                 title = auction.title,
@@ -170,7 +170,7 @@ class SupabaseAuctionDataSource(
                 galleryUrls = finalGalleryUrls,
                 sellerId = sellerId,
                 phoneNumber = auction.phoneNumber,
-//                createdAt = null, GENERATED IN SUPABASE
+
                 buyNowPrice = auction.buyNowPrice,
                 buyerId = auction.buyer?.id,
                 endTime = auction.endTime
@@ -257,11 +257,11 @@ class SupabaseAuctionDataSource(
     ) {
         try {
             val newBid = BidRaw(
-//                id = null, GENERATED IN SUPABASE
+
                 auctionId = auctionId,
                 bidderId = bidderId,
                 amount = amount,
-//                placedAt = null, GENERATED IN SUPABASE
+
             )
 
             supabase.from("bids").insert(newBid)
@@ -350,7 +350,7 @@ class SupabaseAuctionDataSource(
                 .select {
                     filter {
                         and {
-                            eq("status", "active") // DODAJ TO - tylko aktywne aukcje
+                            eq("status", "active") 
                             or {
                                 textSearch("title", query, TextSearchType.WEBSEARCH)
                                 textSearch("description", query, TextSearchType.WEBSEARCH)
@@ -380,7 +380,7 @@ class SupabaseAuctionDataSource(
     ): List<Auction> {
         println("PAGINACJA USER BIDS: userId=$userId, offset=$offset, limit=$limit")
         return try {
-            // Najpierw pobierz ID aukcji, w których użytkownik licytował
+            
             val bidsResult = supabase.from("bids")
                 .select(columns = Columns.list("auction_id")) {
                     filter { eq("bidder_id", userId) }
@@ -395,7 +395,7 @@ class SupabaseAuctionDataSource(
                 return emptyList()
             }
 
-            // Następnie pobierz aukcje z paginacją
+            
             val result = supabase.from("auctions")
                 .select {
                     filter {

@@ -186,7 +186,7 @@ fun OverviewScreen(
                         .padding(18.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    // Klikalny tekst do aukcji użytkownika
+                    
                     Text(
                         text = "My Auctions",
                         style = MaterialTheme.typography.bodyLarge,
@@ -233,7 +233,7 @@ fun OverviewScreen(
                             textAlign = TextAlign.Center
                         )
 
-                        // Niebieska kropka dla nieprzeczytanych powiadomień
+                        
                         if (state.hasUnreadNotifications) {
                             Spacer(modifier = Modifier.width(8.dp))
                             Box(
@@ -290,7 +290,7 @@ fun OverviewScreen(
                                         }
                                     )
 
-                                    // Kropka dla nieprzeczytanych powiadomień
+                                    
                                     if (state.hasUnreadNotifications) {
                                         Box(
                                             modifier = Modifier
@@ -419,14 +419,14 @@ private fun LatestAuctions(
 
         when {
             state.isLatestAuctionsLoading -> {
-//                Box(
-//                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp, start = 16.dp, bottom = 8.dp),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    androidx.compose.material3.CircularProgressIndicator(
-//                        color = MaterialTheme.colorScheme.primary
-//                    )
-//                }
+
+
+
+
+
+
+
+
             }
             state.latestAuctions.isEmpty() -> {
                 Box(
@@ -463,7 +463,7 @@ fun AuctionItem(
     val leftPadding = if (index == 0) 0.dp else 8.dp
     val rightPadding = if (index == itemCount - 1) 16.dp else 0.dp
 
-    // Stan na aktualny czas, odświeżany co sekundę
+    
     var currentTime by remember { mutableStateOf(kotlinx.datetime.Clock.System.now()) }
 
     LaunchedEffect(Unit) {
@@ -546,7 +546,7 @@ fun AuctionItem(
     }
 }
 
-// Funkcja pomocnicza do formatowania czasu
+
 fun formatDuration(duration: kotlin.time.Duration): String {
     if (duration.isNegative()) return "Ended"
     val totalSeconds = duration.inWholeSeconds
@@ -654,7 +654,7 @@ fun SearchBar(
                 }
             )
 
-            // Strzałka pojawia się tylko gdy jest tekst
+            
             if (searchText.isNotEmpty()) {
                 Spacer(modifier = Modifier.width(8.dp))
                 IconButton(

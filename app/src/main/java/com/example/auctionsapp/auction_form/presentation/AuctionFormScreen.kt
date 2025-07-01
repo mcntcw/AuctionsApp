@@ -1,4 +1,4 @@
-// AuctionFormScreenCore.kt
+
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -131,7 +131,7 @@ fun AuctionFormScreen(
                     Text(
                         text = if (state.isEditMode) "Edit Auction" else "Create New Auction",
                         style = MaterialTheme.typography.displayLarge,
-//                        modifier = Modifier.padding(12.dp),
+
                         color = Color.White
                     )
                 },
@@ -181,14 +181,14 @@ fun AuctionFormScreen(
                 singleLine = false
             )
 
-            // Numer telefonu
+            
             fun formatPhoneNumber(number: String): String {
                 return number.chunked(3).joinToString(" ")
             }
             AuctionOutlinedTextField(
                 value = formatPhoneNumber(state.auction.phoneNumber),
                 onValueChange = { formattedInput ->
-                    // Usuń spacje i zapisz do stanu
+                    
                     val rawNumber = formattedInput.replace(" ", "")
                     onAction(AuctionFormAction.UpdateAuctionField(state.auction.copy(phoneNumber = rawNumber)))
                 },
@@ -199,7 +199,7 @@ fun AuctionFormScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
             )
 
-            // Cena "Kup teraz"
+            
             AuctionOutlinedTextField(
                 value = if (state.auction.buyNowPrice > 0) state.auction.buyNowPrice.toString() else "",
                 onValueChange = { newBuyNowPrice ->
@@ -214,7 +214,7 @@ fun AuctionFormScreen(
             )
 
 
-        // Data zakończenia
+        
             AuctionEndDatePicker(
                 endTime = state.auction.endTime,
                 onDateSelected = { newEndTime ->
@@ -237,7 +237,7 @@ fun AuctionFormScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Przyciski akcji
+            
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -327,7 +327,7 @@ fun AuctionEndDatePicker(
         MaterialTheme.colorScheme.primary
     }
 
-    // Format wyświetlanej daty: tylko rok-miesiąc-dzień
+    
     val endTimeString = remember(endTime) {
         if (endTime == Instant.DISTANT_FUTURE) {
             "End Date"
@@ -453,7 +453,7 @@ fun GallerySection(
                     .padding(end = 8.dp)
                     .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
                     .clickable {
-                        // Otwórz picker
+                        
                         imagePickerLauncher.launch(
                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                         )

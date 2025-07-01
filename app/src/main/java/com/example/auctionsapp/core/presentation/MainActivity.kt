@@ -60,7 +60,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
             super.onResume()
             Log.d("MainActivity", "onResume - Aktywność w pełni aktywna")
 
-            // Ustawienie interfejsu użytkownika, jeśli powrócisz do aplikacji
+            
             setContent {
                 AuctionsAppTheme {
                     AppNavigation()

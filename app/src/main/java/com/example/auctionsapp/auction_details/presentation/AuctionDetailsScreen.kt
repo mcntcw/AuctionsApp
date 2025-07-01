@@ -184,7 +184,7 @@ fun AuctionDetailsScreen(
                     .padding(horizontal = 16.dp, vertical = 2.dp),
                 horizontalAlignment = Alignment.Start
             ) {
-                // Karuzela zdjęć
+                
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -261,7 +261,6 @@ fun AuctionDetailsScreen(
                         .padding(horizontal = 16.dp, vertical = 22.dp),
                 ) {
                     if (state.auction.seller.id == state.currentUserId) {
-                        // Sprzedawca widzi box z wszystkimi bidami
                         SellerBidsBox(
                             bids = state.auction.bids
                         )
@@ -323,7 +322,7 @@ fun AuctionDetailsScreen(
             }
         }
 
-        // Dialog potwierdzenia anulowania
+        
         CancelAuctionDialog(
             showDialog = showCancelDialog,
             onConfirm = {
@@ -362,7 +361,7 @@ fun AuctionDetailsTopBar(
             }
         },
         actions = {
-            // Pokaż menu tylko dla właściciela aktywnej aukcji
+            
             if (isOwner && auctionStatus == AuctionStatus.ACTIVE) {
                 IconButton(onClick = { showMenu = true }) {
                     Icon(
@@ -485,7 +484,7 @@ fun GalleryDialog(
                     contentScale = ContentScale.Fit
                 )
             }
-            // Zamknięcie dialogu
+            
             IconButton(
                 onClick = onDismiss,
                 modifier = Modifier
@@ -498,7 +497,7 @@ fun GalleryDialog(
                     tint = Color.White
                 )
             }
-            // Wskaźnik pagera na dole
+            
             if (images.size > 1) {
                 HorizontalPagerIndicator(
                     pagerState = pagerState,
@@ -634,7 +633,7 @@ fun AuctionBidsBox(
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Countdown
+            
             Text(
                 text = "Time left: ${formatDuration(timeLeft)}",
                 style = MaterialTheme.typography.titleMedium,
@@ -643,7 +642,7 @@ fun AuctionBidsBox(
             )
             Spacer(Modifier.height(12.dp))
 
-            // Highest bid
+            
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
@@ -693,7 +692,7 @@ fun AuctionBidsBox(
                 )
             }
             Spacer(Modifier.height(12.dp))
-            // Place bid row
+            
             BidInputWithButton(
                 bidAmount = bidAmount,
                 onBidAmountChange = onBidAmountChange,
@@ -713,7 +712,7 @@ fun AuctionBidsBox(
             }
 
             Spacer(Modifier.height(12.dp))
-            // Buy now button
+            
             Button(
                 onClick = onBuyNow,
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
@@ -726,7 +725,7 @@ fun AuctionBidsBox(
 
             Spacer(Modifier.height(12.dp))
 
-            // Buyer info
+            
             if (!buyerName.isNullOrBlank()) {
                 Text(
                     text = "Buyer: $buyerName",
@@ -738,7 +737,7 @@ fun AuctionBidsBox(
         }
     }
 
-    // Dialog z listą bidów
+    
     if (isBidDialogOpen) {
         BidsDialog(
             bids = bids,

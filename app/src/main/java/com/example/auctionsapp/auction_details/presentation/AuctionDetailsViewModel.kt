@@ -136,7 +136,7 @@ class AuctionDetailsViewModel(
 
         viewModelScope.launch {
             try {
-                // ZMIANA: Używamy auctionService zamiast auctionRepository
+                
                 auctionService.placeBid(
                     auctionId = auction.id ?: "",
                     bidderId = currentUserId,
@@ -227,7 +227,7 @@ class AuctionDetailsViewModel(
         if (bidAmount <= highestBid) {
             return "Your bid must be higher than the current highest bid ($${String.format("%.2f", highestBid)})"
         }
-        // NOWA WALIDACJA: Ostrzeżenie gdy bid >= Buy Now price
+        
         if (bidAmount >= auction.buyNowPrice) {
             return "Your bid ($${String.format("%.2f", bidAmount)}) is equal to or higher than Buy Now price ($${String.format("%.2f", auction.buyNowPrice)}). Consider using Buy Now instead."
         }

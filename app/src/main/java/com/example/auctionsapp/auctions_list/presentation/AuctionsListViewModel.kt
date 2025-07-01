@@ -38,13 +38,13 @@ class AuctionsListViewModel (
                 val userId = savedStateHandle.get<String>("userId") ?: ""
                 state = state.copy(userId = userId)
 
-                // Pobierz nazwę użytkownika
+                
                 viewModelScope.launch {
                     try {
                         val user = userRepository.getUserById(userId)
                         state = state.copy(userDisplayName = user?.name)
                     } catch (e: Exception) {
-                        // Jeśli nie uda się pobrać, zostanie "User"
+                        
                     }
                 }
 
@@ -163,10 +163,10 @@ class AuctionsListViewModel (
                     limit = pageSize,
                     offset = state.auctions.size
                 )
-//                else -> auctionRepository.getAllAuctionsPaged(
-//                    limit = pageSize,
-//                    offset = state.auctions.size
-//                )
+
+
+
+
                 else -> emptyList()
             }
             state = state.copy(

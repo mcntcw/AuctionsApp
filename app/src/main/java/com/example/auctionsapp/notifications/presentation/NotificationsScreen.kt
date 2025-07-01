@@ -121,7 +121,7 @@ fun NotificationsScreen(
     ) { innerPadding ->
 
         if (state.notifications.isEmpty() && !state.isLoading) {
-            // Wyświetl informację o pustej liście
+            
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -206,15 +206,15 @@ fun NotificationListItem(
                 .padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Ikona typu powiadomienia
+            
             NotificationTypeIcon(type = notification.type)
 
-            // Główna zawartość
+            
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Wiadomość
+                
                 Text(
                     text = notification.message,
                     style = MaterialTheme.typography.bodyLarge,
@@ -224,7 +224,7 @@ fun NotificationListItem(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                // Tytuł aukcji
+                
                 notification.auction?.title?.let { title ->
                     Text(
                         text = "Auction: $title",
@@ -235,7 +235,7 @@ fun NotificationListItem(
                     )
                 }
 
-                // Czas
+                
                 Text(
                     text = formatNotificationTime(notification.createdAt),
                     style = MaterialTheme.typography.bodySmall,
@@ -243,7 +243,7 @@ fun NotificationListItem(
                 )
             }
 
-            // Wskaźnik nieprzeczytanego
+            
             if (!notification.isRead) {
                 Box(
                     modifier = Modifier
@@ -308,7 +308,7 @@ fun EmptyNotificationsMessage() {
     }
 }
 
-// Pomocnicze funkcje
+
 private fun formatNotificationTime(createdAt: kotlinx.datetime.Instant): String {
     val localDateTime = createdAt.toLocalDateTime(TimeZone.currentSystemDefault())
     return "${localDateTime.dayOfMonth.toString().padStart(2, '0')}-${localDateTime.monthNumber.toString().padStart(2, '0')}-${localDateTime.year.toString().takeLast(2)} ${localDateTime.hour.toString().padStart(2, '0')}:${localDateTime.minute.toString().padStart(2, '0')}"

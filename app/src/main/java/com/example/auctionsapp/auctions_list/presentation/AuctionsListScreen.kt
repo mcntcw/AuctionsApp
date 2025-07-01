@@ -90,7 +90,7 @@ fun AuctionsListScreen(
 ) {
     val listState = rememberLazyListState()
 
-    // Tytuł w zależności od trybu
+    
     val title = when (mode) {
         "category" -> category.replace('_', '/').replaceFirstChar { it.uppercase() }
         "user" -> "${state.userDisplayName ?: "User"} Auctions"
@@ -129,7 +129,7 @@ fun AuctionsListScreen(
     ) { innerPadding ->
 
         if (state.auctions.isEmpty() && !state.isLoading) {
-            // Wyświetl informację o pustej liście
+            
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -208,7 +208,7 @@ fun AuctionListItem(
                 .padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Większy placeholder dla zdjęcia
+            
             AsyncImage(
                 model = auction.galleryUrls.firstOrNull(),
                 contentDescription = "Auction image",
@@ -220,12 +220,12 @@ fun AuctionListItem(
 
             )
 
-            // Główna zawartość
+            
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Tytuł i status w jednym wierszu
+                
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -246,16 +246,16 @@ fun AuctionListItem(
                     AuctionStatusBadge(status = auction.status)
                 }
 
-                // Cena
+                
                 PriceRow(
                     currentPrice = auction.getCurrentPrice(),
                     isActive = auction.status == AuctionStatus.ACTIVE
                 )
 
-                // Sprzedawca
+                
                 SellerRow(sellerName = auction.seller.name)
 
-                // Czas do końca (tylko dla aktywnych aukcji)
+                
                 if (auction.status == AuctionStatus.ACTIVE) {
                     TimeLeftRow(endTime = auction.endTime)
                 }
@@ -268,7 +268,7 @@ fun AuctionListItem(
 fun ImagePlaceholder() {
     Box(
         modifier = Modifier
-            .size(120.dp) // Większy rozmiar
+            .size(120.dp) 
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center
@@ -277,7 +277,7 @@ fun ImagePlaceholder() {
             imageVector = Icons.Default.Menu,
             contentDescription = "Auction image",
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(40.dp) // Większa ikona
+            modifier = Modifier.size(40.dp) 
         )
     }
 }
@@ -387,7 +387,7 @@ fun AuctionStatusBadge(status: AuctionStatus) {
     }
 }
 
-// Pomocnicze funkcje
+
 private fun formatPrice(price: Double): String {
     return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(price)
 }
@@ -405,7 +405,7 @@ private fun getTimeLeft(endTime: kotlinx.datetime.Instant): String {
     }
 }
 
-// Extension function dla Auction
+
 private fun Auction.getCurrentPrice(): Double {
     return bids.maxByOrNull { it.amount }?.amount ?: 0.0
 }

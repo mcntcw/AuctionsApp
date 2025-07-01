@@ -20,7 +20,7 @@ class AuthenticationViewModel(
 ) : ViewModel() {
     var state by mutableStateOf(AuthenticationState())
 
-    private val _event = MutableSharedFlow<AuthenticationEvent>() // SharedFlow do zdarzeń
+    private val _event = MutableSharedFlow<AuthenticationEvent>() 
     val event: SharedFlow<AuthenticationEvent> = _event
 
     private var _isSplashScreenAppear = MutableStateFlow(true)

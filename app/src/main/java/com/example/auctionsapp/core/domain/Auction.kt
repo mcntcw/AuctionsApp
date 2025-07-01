@@ -64,7 +64,7 @@ data class AuctionRaw(
     @SerialName("gallery_urls") val galleryUrls: List<String>,
     @SerialName("seller_id") val sellerId: String,
     @SerialName("phone_number") val phoneNumber: String,
-//    @SerialName("bids") val bids: List<String>,
+
     @SerialName("buy_now_price") val buyNowPrice: Double,
     @SerialName("buyer_id") val buyerId: String?,
     @SerialName("created_at") val createdAt: Instant? = null,

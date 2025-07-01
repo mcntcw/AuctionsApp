@@ -42,7 +42,7 @@ class AuctionDetailsViewModelTest {
 
     private lateinit var viewModel: AuctionDetailsViewModel
 
-    // Test data
+    
     private val testAuctionId = "test-auction-id"
     private val testUserId = "test-user-id"
     private val testSellerId = "test-seller-id"
@@ -69,10 +69,10 @@ class AuctionDetailsViewModelTest {
         placedAt = Clock.System.now()
     )
 
-    // Aukcja zakończona - nie uruchomi timera
+    
     private val testAuctionEnded = Auction(
         id = testAuctionId,
-        status = AuctionStatus.ENDED, // ← Zakończona
+        status = AuctionStatus.ENDED, 
         category = AuctionCategory.ELECTRONICS,
         title = "Test Auction",
         description = "Test Description",
@@ -83,10 +83,10 @@ class AuctionDetailsViewModelTest {
         buyNowPrice = 500.0,
         buyer = null,
         createdAt = Clock.System.now(),
-        endTime = Clock.System.now().minus(1.hours) // ← Zakończona godzinę temu
+        endTime = Clock.System.now().minus(1.hours) 
     )
 
-    // Aukcja aktywna dla testów z timerem
+    
     private val testAuctionActive = Auction(
         id = testAuctionId,
         status = AuctionStatus.ACTIVE,
@@ -112,23 +112,23 @@ class AuctionDetailsViewModelTest {
         galleryUrls = listOf("url1", "url2"),
         seller = testSeller,
         phoneNumber = "123456789",
-        bids = emptyList(), // ← Brak ofert
+        bids = emptyList(), 
         buyNowPrice = 500.0,
         buyer = null,
         createdAt = Clock.System.now(),
-        endTime = Clock.System.now().plus(1.hours) // Długi czas, ale anulujemy timer
+        endTime = Clock.System.now().plus(1.hours) 
     )
 
     @BeforeEach
     fun setup() {
-        // Tworzenie mocków
+        
         authenticationRepository = mockk(relaxed = true)
         userRepository = mockk(relaxed = true)
         auctionRepository = mockk(relaxed = true)
         auctionService = mockk(relaxed = true)
         savedStateHandle = mockk(relaxed = true)
 
-        // Podstawowa konfiguracja
+        
         every { savedStateHandle.get<String>("auctionId") } returns testAuctionId
         coEvery { authenticationRepository.getCurrentUser() } returns testUser
     }
@@ -146,24 +146,24 @@ class AuctionDetailsViewModelTest {
     @Test
     @Timeout(value = 10, unit = TimeUnit.SECONDS)
     fun initWithEndedAuction_setsCurrentUserAndLoadsAuction() = runTest {
-        // Given - aukcja zakończona (nie uruchomi timera)
+        
         coEvery { auctionRepository.getAuctionById(testAuctionId) } returns testAuctionEnded
 
         try {
-            // When
+            
             viewModel = createViewModel()
 
-            // Then
+            
             assertEquals(testUserId, viewModel.state.currentUserId)
             assertEquals(testAuctionEnded, viewModel.state.auction)
             assertFalse(viewModel.state.isLoading)
 
-            // Weryfikacje
+            
             coVerify { authenticationRepository.getCurrentUser() }
             coVerify { auctionRepository.getAuctionById(testAuctionId) }
 
         } finally {
-            // Cleanup - anuluj wszystkie pozostałe korutyny
+            
             coroutineContext.cancelChildren()
         }
     }
@@ -172,15 +172,15 @@ class AuctionDetailsViewModelTest {
     @Test
     @Timeout(value = 5, unit = TimeUnit.SECONDS)
     fun initWithNullCurrentUser_setsCurrentUserIdToNull() = runTest {
-        // Given
+        
         coEvery { authenticationRepository.getCurrentUser() } returns null
         coEvery { auctionRepository.getAuctionById(testAuctionId) } returns testAuctionEnded
 
         try {
-            // When
+            
             viewModel = createViewModel()
 
-            // Then
+            
             assertEquals(null, viewModel.state.currentUserId)
             assertEquals(testAuctionEnded, viewModel.state.auction)
 
@@ -192,30 +192,30 @@ class AuctionDetailsViewModelTest {
     @Test
     @Timeout(value = 5, unit = TimeUnit.SECONDS)
     fun getAuctionInfo_withValidId_updatesStateAndEmitsSuccess() = runTest {
-        // Given
+        
         coEvery { auctionRepository.getAuctionById(testAuctionId) } returns testAuctionEnded
 
         try {
             viewModel = createViewModel()
 
-            // When & Then
+            
             viewModel.event.test {
                 viewModel.onAction(AuctionDetailsAction.GetAuctionInfo(testAuctionId))
 
-                // Sprawdź event
+                
                 assertEquals(AuctionDetailsEvent.GetAuctionInfoSuccess, awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
 
-            // Sprawdź czy stan został zaktualizowany
+            
             assertEquals(testAuctionEnded, viewModel.state.auction)
             assertFalse(viewModel.state.isLoading)
 
-            // Sprawdź czy repository zostało wywołane
+            
             coVerify { auctionRepository.getAuctionById(testAuctionId) }
 
         } finally {
-            // Cleanup - anuluj timer
+            
             viewModel.cancelTimers()
             coroutineContext.cancelChildren()
         }
@@ -224,29 +224,29 @@ class AuctionDetailsViewModelTest {
     @Test
     @Timeout(value = 5, unit = TimeUnit.SECONDS)
     fun getAuctionInfo_withNullAuction_emitsFailure() = runTest {
-        // Given
+        
         coEvery { auctionRepository.getAuctionById(testAuctionId) } returns null
 
         try {
             viewModel = createViewModel()
 
-            // When & Then
+            
             viewModel.event.test {
                 viewModel.onAction(AuctionDetailsAction.GetAuctionInfo(testAuctionId))
 
-                // Sprawdź event
+                
                 assertEquals(AuctionDetailsEvent.GetAuctionInfoFailure, awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
 
-            // Sprawdź czy stan został zaktualizowany
+            
             assertEquals(Auction.empty(), viewModel.state.auction)
             assertFalse(viewModel.state.isLoading)
 
-            // Sprawdź czy repository zostało wywołane
+            
             coVerify(exactly = 2) { auctionRepository.getAuctionById(testAuctionId) }
         } finally {
-            // Cleanup - anuluj timer
+            
             viewModel.cancelTimers()
             coroutineContext.cancelChildren()
         }
@@ -260,23 +260,23 @@ class AuctionDetailsViewModelTest {
         try {
             viewModel = createViewModel()
 
-            // When & Then
+            
             viewModel.event.test {
                 viewModel.onAction(AuctionDetailsAction.GetAuctionInfo(testAuctionId))
 
-                // Sprawdź event
+                
                 assertEquals(AuctionDetailsEvent.GetAuctionInfoFailure, awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
 
-            // Sprawdź czy stan został zaktualizowany
+            
             assertEquals(Auction.empty(), viewModel.state.auction)
             assertFalse(viewModel.state.isLoading)
 
-            // Sprawdź czy repository zostało wywołane
+            
             coVerify(exactly = 2) { auctionRepository.getAuctionById(testAuctionId) }
         } finally {
-            // Cleanup - anuluj timer
+            
             viewModel.cancelTimers()
             coroutineContext.cancelChildren()
         }
@@ -316,7 +316,7 @@ class AuctionDetailsViewModelTest {
 
         viewModel = createViewModel()
 
-        // When & Then
+        
         viewModel.event.test {
             viewModel.onAction(AuctionDetailsAction.UpdateBidValue(200.0))
             viewModel.onAction(AuctionDetailsAction.PlaceBid(200.0))
@@ -328,7 +328,7 @@ class AuctionDetailsViewModelTest {
             cancelAndConsumeRemainingEvents()
         }
 
-        // Sprawdź że service nie został wywołany
+        
         coVerify(exactly = 0) { auctionService.placeBid(any(), any(), any()) }
     }
 
@@ -340,7 +340,7 @@ class AuctionDetailsViewModelTest {
 
         viewModel = createViewModel()
         viewModel.cancelTimers()
-        // When & Then
+        
         viewModel.event.test {
             viewModel.onAction(AuctionDetailsAction.UpdateBidValue(200.0))
             viewModel.onAction(AuctionDetailsAction.PlaceBid(200.0))
@@ -363,7 +363,7 @@ class AuctionDetailsViewModelTest {
         try {
             viewModel = createViewModel()
 
-            // When & Then
+            
             viewModel.event.test {
                 viewModel.onAction(AuctionDetailsAction.UpdateBidValue(140.0))
                 viewModel.onAction(AuctionDetailsAction.PlaceBid(140.0))
@@ -375,7 +375,7 @@ class AuctionDetailsViewModelTest {
                 cancelAndConsumeRemainingEvents()
             }
 
-            // Sprawdź że service nie został wywołany
+            
             coVerify(exactly = 0) { auctionService.placeBid(any(), any(), any()) }
 
         } finally {
@@ -406,7 +406,7 @@ class AuctionDetailsViewModelTest {
                 cancelAndConsumeRemainingEvents()
             }
 
-            // Sprawdź że service nie został wywołany
+            
             coVerify(exactly = 0) { auctionService.placeBid(any(), any(), any()) }
 
         } finally {
@@ -420,7 +420,7 @@ class AuctionDetailsViewModelTest {
     @Test
     @Timeout(value = 5, unit = TimeUnit.SECONDS)
     fun placeBid_withValidBid_callsServiceAndEmitsSuccess() = runTest {
-        // Given
+        
         coEvery { auctionRepository.getAuctionById(testAuctionId) } returns testAuctionActive
         coEvery { authenticationRepository.getCurrentUser() } returns testUser
         coEvery { auctionService.placeBid(any(), any(), any()) } returns Unit
@@ -428,12 +428,12 @@ class AuctionDetailsViewModelTest {
         try {
             viewModel = createViewModel()
             viewModel.cancelTimers()
-            // Ustaw bidValue na wartość wyższą niż najwyższa oferta (150.0)
+            
             viewModel.onAction(AuctionDetailsAction.UpdateBidValue(200.0))
 
-            // When & Then
+            
             viewModel.event.test {
-                viewModel.onAction(AuctionDetailsAction.PlaceBid(0.0)) // parametr ignorowany
+                viewModel.onAction(AuctionDetailsAction.PlaceBid(0.0)) 
 
                 val successEvent = awaitItem()
                 assertEquals(AuctionDetailsEvent.PlaceBidSuccess, successEvent)
@@ -441,7 +441,7 @@ class AuctionDetailsViewModelTest {
                 cancelAndConsumeRemainingEvents()
             }
 
-            // Sprawdź że auctionService.placeBid został wywołany z odpowiednimi argumentami
+            
             coVerify(exactly = 1) {
                 auctionService.placeBid(testAuctionId, testUser.id!!, 200.0)
             }
@@ -455,10 +455,10 @@ class AuctionDetailsViewModelTest {
     @Test
     @Timeout(value = 5, unit = TimeUnit.SECONDS)
     fun placeBid_withServiceException_emitsErrorToast() = runTest {
-        // Given
+        
         coEvery { auctionRepository.getAuctionById(testAuctionId) } returns testAuctionActive
         coEvery { authenticationRepository.getCurrentUser() } returns testUser
-        // KLUCZOWA ZMIANA: Service rzuca wyjątek
+        
         coEvery { auctionService.placeBid(any(), any(), any()) } throws Exception("Network error")
 
         try {
@@ -467,21 +467,21 @@ class AuctionDetailsViewModelTest {
 
             viewModel.onAction(AuctionDetailsAction.UpdateBidValue(200.0))
 
-            // When & Then
+            
             viewModel.event.test {
                 viewModel.onAction(AuctionDetailsAction.PlaceBid(0.0))
 
-                // Sprawdź toast z błędem
+                
                 val errorToast = awaitItem() as AuctionDetailsEvent.ShowValidationToast
                 assertTrue(errorToast.message.contains("error") || errorToast.message.contains("failed"))
 
-                // Sprawdź event failure
+                
                 assertEquals(AuctionDetailsEvent.PlaceBidFailure, awaitItem())
 
                 cancelAndConsumeRemainingEvents()
             }
 
-            // Service został wywołany ale rzucił wyjątek
+            
             coVerify(exactly = 1) {
                 auctionService.placeBid(testAuctionId, testUser.id!!, 200.0)
             }
@@ -495,7 +495,7 @@ class AuctionDetailsViewModelTest {
     @Test
     @Timeout(value = 5, unit = TimeUnit.SECONDS)
     fun buyNow_withValidUser_callsServiceAndEmitsSuccess() = runTest {
-        // Given
+        
         coEvery { auctionRepository.getAuctionById(testAuctionId) } returns testAuctionActive
         coEvery { authenticationRepository.getCurrentUser() } returns testUser
         coEvery { auctionService.buyNow(any(), any()) } returns Unit
@@ -503,7 +503,7 @@ class AuctionDetailsViewModelTest {
         try {
             viewModel = createViewModel()
             viewModel.cancelTimers()
-            // When & Then
+            
             viewModel.event.test {
                 viewModel.onAction(AuctionDetailsAction.BuyNow)
 
@@ -513,7 +513,7 @@ class AuctionDetailsViewModelTest {
                 cancelAndConsumeRemainingEvents()
             }
 
-            // Sprawdź że auctionService.buyNow został wywołany z odpowiednimi argumentami
+            
             coVerify(exactly = 1) {
                 auctionService.buyNow(testAuctionId, testUser.id!!)
             }
@@ -527,13 +527,13 @@ class AuctionDetailsViewModelTest {
     @Test
     @Timeout(value = 5, unit = TimeUnit.SECONDS)
     fun buyNow_withNullUser_emitsAuthenticationError() = runTest {
-        // Given - użytkownik niezalogowany
+        
         coEvery { auctionRepository.getAuctionById(testAuctionId) } returns testAuctionActive
-        coEvery { authenticationRepository.getCurrentUser() } returns null // ← Kluczowa zmiana!
+        coEvery { authenticationRepository.getCurrentUser() } returns null 
 
         viewModel = createViewModel()
         viewModel.cancelTimers()
-        // When & Then
+        
         viewModel.event.test {
             viewModel.onAction(AuctionDetailsAction.BuyNow)
 
@@ -546,7 +546,7 @@ class AuctionDetailsViewModelTest {
             cancelAndConsumeRemainingEvents()
         }
 
-        // Sprawdź że auctionService.buyNow NIE został wywołany
+        
         coVerify(exactly = 0) { auctionService.buyNow(any(), any()) }
     }
 

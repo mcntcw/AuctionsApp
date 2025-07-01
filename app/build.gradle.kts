@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId = "com.example.auctionsapp"
         minSdk = 24
-        //noinspection EditedTargetSdkVersion
+        
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -125,6 +125,6 @@ tasks.withType<Test> {
         "-XX:+EnableDynamicAgentLoading"
     )
 
-    // Ograniczenie równoległych procesów
+    
     maxParallelForks = 1
 }

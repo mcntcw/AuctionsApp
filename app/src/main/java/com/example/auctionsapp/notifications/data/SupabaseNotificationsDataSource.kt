@@ -16,7 +16,7 @@ class SupabaseNotificationsDataSource(
      suspend fun upsertNotification(notification: Notification) {
          try {
              val notificationRaw = NotificationRaw(
-//                 id = null, GENEROWANE W SUPABASE
+
                  receiverId = notification.receiver?.id ?: throw IllegalStateException("Brak odbiorcy powiadomienia!"),
                  auctionId = notification.auction?.id ?: throw IllegalStateException("Brak aukcji w powiadomieniu!"),
                  type = notification.type.name.lowercase(),
@@ -45,7 +45,7 @@ class SupabaseNotificationsDataSource(
             val notificationsRaw = result.decodeList<NotificationRaw>()
             println("📱 Pobrano ${notificationsRaw.size} powiadomień dla użytkownika $userId")
 
-            // Mapuj NotificationRaw na Notification z pełnymi obiektami
+            
             notificationsRaw.mapNotNull { notificationRaw ->
                 try {
                     val receiver = userRepository.getUserById(notificationRaw.receiverId)
